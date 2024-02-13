@@ -1,0 +1,53 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+//#include <zephyr/drivers/sensor.h>
+/ {
+    leds {
+        compatible = "gpio-leds";
+        blinking_led: blinking_led {
+            gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+        };
+    };
+    buttons {
+        compatible = "gpio-keys";
+        red_button: button {
+            gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+        };
+
+    };
+    chosen {
+        zephyr,display = &ssd1306;
+    };
+};
+
+&i2c0 {
+    status = "okay";
+    compatible = "espressif,esp32-i2c";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+
+    temp: bme280@76 {
+        compatible = "bosch,bme280";
+        reg = <0x76>;
+    };
+
+    ssd1306: ssd1306@3c {
+        
+        compatible = "solomon,ssd1306fb";
+
+        reg = <0x3c>;
+        height = <64>;
+        width = <128>;
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <63>;
+        prechargep = <0x22>;
+        segment-remap;
+        com-invdir;
+        com-sequential;
+
+    };
+
+};
+
+
+

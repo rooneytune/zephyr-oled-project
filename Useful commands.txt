@@ -1,0 +1,49 @@
+
+west build -b esp32 
+
+west flash
+
+west espressif monitor -p /dev/ttyACM0
+
+device list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

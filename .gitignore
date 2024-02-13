@@ -1,0 +1,34 @@
+# Zephyr build and output directories
+/build/
+/out/
+
+# Generated files
+/zephyr/.config
+/zephyr/zephyr.dts
+/zephyr/zephyr.hex
+/zephyr/zephyr.elf
+/zephyr/zephyr.map
+/zephyr/zephyr.lst
+/zephyr/zephyr.bin
+/zephyr/zephyr.asm
+
+# CMake build files
+/CMakeFiles/
+/CMakeCache.txt
+/CMakeScripts/
+/CMakeScripts/
+/CMakeSettings.json
+/CMakeLists.txt.user
+
+# Temporary files
+*.swp
+*.swo
+*.pyc
+*.pyo
+
+# IDE and editor specific files
+# /.vscode/
+
+# Dependency management files
+/CMakeLists.txt.user
+/CMakeSettings.json
