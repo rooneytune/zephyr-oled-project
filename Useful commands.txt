@@ -16,7 +16,7 @@ device list
 
 
 
-
+source /home/rooney/Documents/Code/zephyrproject/.venv/bin/activate
 
 
 

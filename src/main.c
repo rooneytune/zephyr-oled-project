@@ -20,6 +20,15 @@ LOG_MODULE_REGISTER(main);
 #define LV_HOR_RES_MAX 128
 #define LV_VER_RES_MAX 64
 
+#define LV_COLOR_BLACK 0x000000
+#define LV_COLOR_WHITE 0xFFFFFF
+
+static lv_obj_t *temp_label, *temp_value_label;
+static lv_obj_t *hum_label, *hum_value_label;
+static lv_obj_t *pm25_label, *pm25_value_label;
+static lv_obj_t *voc_label, *voc_value_label;
+char temp_value[11] = {0};
+
 // Declaration of all Device tree struct
 static const struct device *gpio_ct_dev =
     DEVICE_DT_GET(DT_NODELABEL(gpio0));
@@ -83,7 +92,6 @@ bool setupButtonPressEventHandler()
   return true;
 }
 
-
 /*
  Setup for a single LED pin.  Works fine
 */
@@ -107,7 +115,6 @@ bool setupLeds()
   return true;
 }
 
-
 // Basic steps, required for all display libraries
 bool setupDisplayDevice()
 {
@@ -126,11 +133,10 @@ bool setupDisplayDevice()
     return false;
   }
 
-  
   /*
-    LVGL INIT steps, as recommended by ChatGPT 
+    LVGL INIT steps, as recommended by ChatGPT
     Both init and register methods not recognised at compile time
-  */ 
+  */
 
   // lv_init();
   // lv_disp_drv_t disp_drv;
@@ -144,42 +150,41 @@ bool setupDisplayDevice()
 // Uses CharacterFrameBuffer to configure display and display a message
 // THIS WORKS !  So device tree setup must be OK
 //-----------------------------------------------------------------------
-void displayHelloWorldMessage_CFB(void)
-{
-  int ret;
-  ret = cfb_framebuffer_init(display);
-  if (ret != 0)
-  {
-    printk("Could not initialise the display\n");
-    LOG_ERR("Could not initialise the display");
-    return false;
-  }
+// void displayHelloWorldMessage_CFB(void)
+// {
+//   int ret;
+//   ret = cfb_framebuffer_init(display);
+//   if (ret != 0)
+//   {
+//     printk("Could not initialise the display\n");
+//     LOG_ERR("Could not initialise the display");
+//     return false;
+//   }
 
-  ret = cfb_framebuffer_invert(display);
+//   ret = cfb_framebuffer_invert(display);
 
-  ret = cfb_print(display, "Display OK 1", 0, 0);
-  if (ret != 0)
-  {
-    LOG_ERR("could not print to display");
-    return;
-  }
-  
-  ret = cfb_framebuffer_finalize(display);
- 
+//   ret = cfb_print(display, "Display OK 1", 0, 0);
+//   if (ret != 0)
+//   {
+//     LOG_ERR("could not print to display");
+//     return;
+//   }
 
-  if (ret != 0)
-  {
-    printk("could not finalise!\n");
-    LOG_ERR("could not finalise");
-    return;
-  }
-  LOG_INF("Finalised display.\n");
-  
-}
+//   ret = cfb_framebuffer_finalize(display);
+
+//   if (ret != 0)
+//   {
+//     printk("could not finalise!\n");
+//     LOG_ERR("could not finalise");
+//     return;
+//   }
+//   LOG_INF("Finalised display.\n");
+
+// }
 
 //------------------------------------------------------------------------------------------
 // Uses LVGL to configure display and display a message - Copied from Goliath training vid
-// DOES NOT WORK!  Code compliles but, when referenced in main, processing 
+// DOES NOT WORK!  Code compliles but, when referenced in main, processing
 // halts shortly after startup.  No log entries are displayed in terminal
 //-------------------------------------------------------------------------------------------
 void displayHelloWorldWithCounterLoop_LVGL(void)
@@ -187,7 +192,6 @@ void displayHelloWorldWithCounterLoop_LVGL(void)
 
   int ret;
   LOG_INF("Initialising LVLG code . . . \n");
-
 
   uint32_t count = 0U;
   char count_str[11] = {0};
@@ -235,7 +239,7 @@ void displayHelloWorldWithCounterLoop_LVGL(void)
 
 //------------------------------------------------------------------------------------------
 // Uses LVGL to configure display and display a message - copied from another example
-// DOES NOT WORK!  Code compliles but, when referenced in main, processing 
+// DOES NOT WORK!  Code compliles but, when referenced in main, processing
 // halts after calll.  No log entries from this method are displayed in terminal.
 // Have tried various 'initialisation', any reference to LVGL lib appears the crash
 // my device
@@ -243,28 +247,70 @@ void displayHelloWorldWithCounterLoop_LVGL(void)
 void displayHelloWorldLabel_LVGL(void)
 {
   LOG_INF("displayHelloWorldLabel_LVGL started\n");
-  
-  k_msleep(500);
-  
+
   //********Processing stalls here !***********
-  lv_init(); 
+  lv_init();
+  LOG_INF("LVGL - init OK\n");
+
+static lv_style_t stSmall;
+lv_style_init(&stSmall);
+lv_style_set_text_font(&stSmall, &lv_font_unscii_8);
 
 
+//lv_style_set_text_font(&stRoberto, &rob);
+
+  temp_label = lv_label_create(lv_scr_act());
+  lv_label_set_text(temp_label, "TEMP:");
+  lv_obj_align(temp_label, LV_ALIGN_TOP_LEFT, 0, 0);
+  lv_obj_add_style(temp_label,&stSmall,0);
+
+  temp_value_label = lv_label_create(lv_scr_act());
+  lv_label_set_text(temp_value_label, "*");
+  lv_obj_align(temp_value_label, LV_ALIGN_TOP_LEFT, 0, 14);
+  lv_obj_add_style(temp_value_label,&stSmall,0);
+
+  LOG_INF("LVGL - labels created\n");
+
+  lv_task_handler();
+
+  //   // Create a screen
+  //   lv_obj_t * screen = lv_scr_act();
+
+  //   // Create a style for the background
+  //   static lv_style_t style_bg;
+  //   lv_style_init(&style_bg);
+  //   lv_style_set_bg_color(&style_bg, lv_color_black()); // Set background color to black
+
+  //   // Create a style for the text
+  //   static lv_style_t style_text;
+  //   lv_style_init(&style_text);
+  //   lv_style_set_text_color(&style_text,  lv_color_white()); // Set text color to white
+
+  //   // Create a label (text)
+  //   lv_obj_t * label = lv_label_create(screen);
+  //   lv_label_set_text(label, "Hello, World!");
+
+  //   // Apply the style to the label
+  //   lv_obj_add_style(label, LV_OBJ_DRAW_PART_RECTANGLE, &style_text);
+
+  //   // Apply the style to the screen
+  //   lv_obj_add_style(screen, LV_OBJ_DRAW_PART_RECTANGLE, &style_bg);
+
+  // lv_disp_t * lv_disp = lv_disp_get_default();
+  // lv_theme_default_init(lv_disp, lv_color_black(), lv_color_white(), 1, &lv_font_montserrat_14);
   // Initialize the LVGL display driver
-  //lv_disp_drv_init(&display);
+  // lv_disp_drv_init(&display);
 
-  //lv_disp_draw_buf_t disp_buf;
-  //static lv_color_t buf[LV_HOR_RES_MAX * LV_VER_RES_MAX / 10]; // Declare a buffer for 1/10 screen size
-  //lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * LV_VER_RES_MAX / 10); // Adjust the size according to your display
+  // lv_disp_draw_buf_t disp_buf;
+  // static lv_color_t buf[LV_HOR_RES_MAX * LV_VER_RES_MAX / 10]; // Declare a buffer for 1/10 screen size
+  // lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * LV_VER_RES_MAX / 10); // Adjust the size according to your display
 
-  //lv_init();
-  // // Initialize the display
+  // lv_init();
+  //  // Initialize the display
   // display_blanking_off(display);
 
-
-
   // Create your screens
-  //screen1 = lv_obj_create(NULL);
+  //  lv_obj_t *screen1 = lv_obj_create(NULL);
 
   // // Set the active screen pointer to screen1
   // lv_scr_load(screen1);
@@ -279,7 +325,7 @@ void displayHelloWorldLabel_LVGL(void)
 
   // lv_task_handler();
 
-  // /*Change the active screen's background color*/
+  /*Change the active screen's background color*/
   // lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
 
   // /*Create a white label, set its text and align it to the center*/
@@ -301,16 +347,15 @@ int main(void)
   setupLeds();
   setupButtonPressEventHandler();
   setupDisplayDevice();
-  LOG_INF("Waiting 2 seconds\n");
-  k_msleep(2000);
+  // LOG_INF("Waiting 2 seconds\n");
+  // k_msleep(2000);
 
   displayHelloWorldLabel_LVGL();
 
-  //Test the display - This method runs OK
-  displayHelloWorldMessage_CFB();
+  // Test the display - This method runs OK
+  // displayHelloWorldMessage_CFB();
 
-  
-  //Main Loop that toggles led state (just to signify that everything has initialied)
+  // Main Loop that toggles led state (just to signify that everything has initialied)
   int loopIndex = 0;
   gpio_pin_set_dt(&led, 0);
   while (true)
@@ -335,5 +380,8 @@ int main(void)
       return;
     }
     k_msleep(1000);
+
+      snprintf(temp_value, sizeof(temp_value) - 1, "%d", loopIndex);
+      lv_label_set_text(temp_value_label, temp_value);
   }
 }

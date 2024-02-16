@@ -12,7 +12,7 @@ set(BOARD esp32)
 
 find_package(Zephyr)
 
-project(hello_world_blinky)
+project(zephyr-oled-project)
 
 target_sources(app PRIVATE 
     src/main.c
