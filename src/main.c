@@ -250,24 +250,29 @@ void displayHelloWorldLabel_LVGL(void)
 
   //********Processing stalls here !***********
   lv_init();
+  size_t lvglMemory;
+  lvglMemory = 180000;
+
+  lv_mem_alloc(lvglMemory);
+  
+
   LOG_INF("LVGL - init OK\n");
 
-static lv_style_t stSmall;
-lv_style_init(&stSmall);
-lv_style_set_text_font(&stSmall, &lv_font_unscii_8);
+  static lv_style_t stSmall;
+  lv_style_init(&stSmall);
+  lv_style_set_text_font(&stSmall, &lv_font_unscii_8);
 
-
-//lv_style_set_text_font(&stRoberto, &rob);
+  // lv_style_set_text_font(&stRoberto, &rob);
 
   temp_label = lv_label_create(lv_scr_act());
   lv_label_set_text(temp_label, "TEMP:");
   lv_obj_align(temp_label, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_obj_add_style(temp_label,&stSmall,0);
+  lv_obj_add_style(temp_label, &stSmall, 0);
 
   temp_value_label = lv_label_create(lv_scr_act());
   lv_label_set_text(temp_value_label, "*");
   lv_obj_align(temp_value_label, LV_ALIGN_TOP_LEFT, 0, 14);
-  lv_obj_add_style(temp_value_label,&stSmall,0);
+  lv_obj_add_style(temp_value_label, &stSmall, 0);
 
   LOG_INF("LVGL - labels created\n");
 
@@ -356,32 +361,31 @@ int main(void)
   // displayHelloWorldMessage_CFB();
 
   // Main Loop that toggles led state (just to signify that everything has initialied)
-  int loopIndex = 0;
+  volatile int loopIndex = 0;
   gpio_pin_set_dt(&led, 0);
   while (true)
   {
+  
+    loopIndex++;
+    LOG_INF("Main loop - Iteration: %d...\n", loopIndex);
+
+    snprintf(temp_value, sizeof(temp_value) - 1, "%d", loopIndex);
+    //snprintf(temp_value, sizeof(temp_value) - 1, "%d", 500);
+    lv_label_set_text(temp_value_label, temp_value);
+
     // Update LVGL tasks
     lv_task_handler();
 
-    loopIndex++;
-    // LOG_INF("Main loop - Iteration: %d...\n", loopIndex);
-
-    ret = gpio_pin_set_raw(gpio_ct_dev, BUILTIN_LED_PIN, 1);
-    // ret = gpio_pin_toggle_dt(&led);
-    if (ret != 0)
-    {
-      return;
-    }
+    
+    ret = gpio_pin_toggle_dt(&led);
+    
     k_msleep(1000);
 
-    ret = gpio_pin_set_raw(gpio_ct_dev, BUILTIN_LED_PIN, 0);
-    if (ret != 0)
-    {
-      return;
-    }
-    k_msleep(1000);
-
-      snprintf(temp_value, sizeof(temp_value) - 1, "%d", loopIndex);
-      lv_label_set_text(temp_value_label, temp_value);
+    // ret = gpio_pin_set_raw(gpio_ct_dev, BUILTIN_LED_PIN, 0);
+    // if (ret != 0)
+    // {
+    //   return;
+    // }
+    // k_msleep(1000);
   }
 }
