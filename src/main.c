@@ -27,7 +27,7 @@ static lv_obj_t *temp_label, *temp_value_label;
 static lv_obj_t *hum_label, *hum_value_label;
 static lv_obj_t *pm25_label, *pm25_value_label;
 static lv_obj_t *voc_label, *voc_value_label;
-char temp_value[11] = {0};
+static char temp_value[11] = {0};
 
 // Declaration of all Device tree struct
 static const struct device *gpio_ct_dev =
@@ -183,9 +183,7 @@ bool setupDisplayDevice()
 // }
 
 //------------------------------------------------------------------------------------------
-// Uses LVGL to configure display and display a message - Copied from Goliath training vid
-// DOES NOT WORK!  Code compliles but, when referenced in main, processing
-// halts shortly after startup.  No log entries are displayed in terminal
+// Sample code, not in use
 //-------------------------------------------------------------------------------------------
 void displayHelloWorldWithCounterLoop_LVGL(void)
 {
@@ -235,14 +233,10 @@ void displayHelloWorldWithCounterLoop_LVGL(void)
   // lv_task_handler();
   // k_msleep(1000);
   // ++count;
-}
+};
 
 //------------------------------------------------------------------------------------------
-// Uses LVGL to configure display and display a message - copied from another example
-// DOES NOT WORK!  Code compliles but, when referenced in main, processing
-// halts after calll.  No log entries from this method are displayed in terminal.
-// Have tried various 'initialisation', any reference to LVGL lib appears the crash
-// my device
+// Works, but maybe an error with memory allocation
 //-------------------------------------------------------------------------------------------
 void displayHelloWorldLabel_LVGL(void)
 {
@@ -250,10 +244,12 @@ void displayHelloWorldLabel_LVGL(void)
 
   //********Processing stalls here !***********
   lv_init();
-  size_t lvglMemory;
-  lvglMemory = 180000;
-
-  lv_mem_alloc(lvglMemory);
+  // size_t lvglMemory;
+  // lvglMemory = 180000;
+  //  #define DRAW_BUF_SIZE  (128 * 64 / 10 * (LV_COLOR_DEPTH / 8))
+  // uint32_t draw_buf[DRAW_BUF_SIZE / 4];
+  
+  // lv_mem_alloc(lvglMemory);
   
 
   LOG_INF("LVGL - init OK\n");
@@ -265,7 +261,7 @@ void displayHelloWorldLabel_LVGL(void)
   // lv_style_set_text_font(&stRoberto, &rob);
 
   temp_label = lv_label_create(lv_scr_act());
-  lv_label_set_text(temp_label, "TEMP:");
+  lv_label_set_text(temp_label, "Roon*Deluxe:");
   lv_obj_align(temp_label, LV_ALIGN_TOP_LEFT, 0, 0);
   lv_obj_add_style(temp_label, &stSmall, 0);
 
@@ -352,7 +348,7 @@ int main(void)
   setupLeds();
   setupButtonPressEventHandler();
   setupDisplayDevice();
-  // LOG_INF("Waiting 2 seconds\n");
+
   // k_msleep(2000);
 
   displayHelloWorldLabel_LVGL();
@@ -369,23 +365,19 @@ int main(void)
     loopIndex++;
     LOG_INF("Main loop - Iteration: %d...\n", loopIndex);
 
+    //Update Label with loop index
     snprintf(temp_value, sizeof(temp_value) - 1, "%d", loopIndex);
-    //snprintf(temp_value, sizeof(temp_value) - 1, "%d", 500);
     lv_label_set_text(temp_value_label, temp_value);
 
     // Update LVGL tasks
     lv_task_handler();
-
     
+
+    //Toggle led
     ret = gpio_pin_toggle_dt(&led);
     
     k_msleep(1000);
 
-    // ret = gpio_pin_set_raw(gpio_ct_dev, BUILTIN_LED_PIN, 0);
-    // if (ret != 0)
-    // {
-    //   return;
-    // }
-    // k_msleep(1000);
+
   }
 }
