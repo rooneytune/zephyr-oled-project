@@ -8,14 +8,6 @@ west espressif monitor -p /dev/ttyACM0
 device list
 
 
-
-
-
-
-
-
-
-
 source /home/rooney/Documents/Code/zephyrproject/.venv/bin/activate
 
 
